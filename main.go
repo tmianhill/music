@@ -18,7 +18,7 @@ func main() {
 	p := newPlayer(meantToBeAPianoButSoundsMoreLikeSomeSortOfGuitar)
 	defer p.Close()
 
-	fmt.Println("playing. press Ctrl-C to shut me up")
+	fmt.Println("playing. press Ctrl-C to shut me up...")
 	p.playSong(songs.TwelveDays())
 }
 
@@ -52,17 +52,28 @@ func (p *player) Close() {
 	p.playerStream.Close()
 }
 
-func (p *player) playSong(song string) {
-	song += ".."
+func (p *player) playSong(song songs.Song) {
+	fmt.Println()
+	fmt.Println(song.Title)
+	fmt.Println()
+
+	for _,line := range song.Lines {
+		fmt.Println(line.Lyrics)
+		p.playTune(line.Notes)
+	}
+}
+
+func (p *player) playTune(tune string) {
+	tune += ".."
 	i := 0
-	for i < len(song) - 3 {
-		note := song[i:i+1]
-		next1 := song[i+1]
-		lenChar := song[i+1]
+	for i < len(tune) - 2 {
+		note := tune[i:i+1]
+		next1 := tune[i+1]
+		lenChar := tune[i+1]
 		len := 1
 		if next1 == '#' {
-			note = song[i:i+2]
-			lenChar = song[i+2]
+			note = tune[i:i+2]
+			lenChar = tune[i+2]
 			i++
 		}
 		if lenChar >= '1' && lenChar <= '9' {
@@ -100,5 +111,3 @@ func (p *player) playSilence(durationMS float64) {
 		binary.Write(p.playerStream, binary.LittleEndian, int16(0))
 	}
 }
-
-

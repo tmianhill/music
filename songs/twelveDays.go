@@ -1,56 +1,111 @@
 package songs
 
-import "bytes"
+import (
+	"fmt"
+)
 
-func TwelveDays() string {
-	b := bytes.Buffer{}
-	for i:=1;i<=12;i++{
-		addTwelveDaysVerse(&b, i)
+var (
+	dayNames = []string{
+		"zeroeth", "first", "second", "third", "fourth", "fifth",
+		"sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth",
 	}
-	return b.String()
+	gifts = []string{
+		"nothing",
+		"an incident raised by JB",
+		"two nasty bugs",
+		"three pen tests",
+		"four APIs",
+		"five Go things",
+		"six Pete's a-playing",
+		"seven Sri's a-singing",
+		"eight Kim's a-clapping",
+		"nine Hannah's humming",
+		"ten Steve's a-stomping",
+		"eleven pipelines piping",
+		"twelve app releases",
+	}
+)
+
+type SongLine struct {
+	Notes  string
+	Lyrics string
 }
 
-func addTwelveDaysVerse(b *bytes.Buffer, v int) {
-	addTwelveDaysFirstLine(b, v==1)
+type Song struct {
+	Title string
+	Lines []SongLine
+}
+
+func TwelveDays() Song {
+	song := Song{
+		Title: "Twelve Days of Think Money",
+	}
+	for i := 1; i <= 12; i++ {
+		addTwelveDaysVerse(&song, i)
+	}
+	return song
+}
+
+func addTwelveDaysVerse(s *Song, v int) {
+	if v > 1 {
+		s.Lines = append(s.Lines, SongLine{})
+	}
+
+	addTwelveDaysFirstLine(s, v)
 	if v >= 5 {
-		for range v-5 {
-			addVerseLine(b, true)
+		for l := v; l > 5; l-- {
+			addVerseLine(s, l)
 		}
-		addRingsToTurtleDoves(b)
+		addRingsToTurtleDoves(s)
 	} else {
-		for range v-1 {
-			addVerseLine(b, false)
+		for l := v; l > 1; l-- {
+			addVerseLine(s, l)
 		}
 	}
-	addPartridge(b, v==1)
+	addPartridge(s, v > 1)
 }
 
-func addTwelveDaysFirstLine(b *bytes.Buffer, isFirstVerse bool) {
-	b.WriteString("ggg2CCC2bCDEFDE")
-	if isFirstVerse{
-		b.WriteRune('3')
+func addTwelveDaysFirstLine(s *Song, v int) {
+	lastNoteLength := 4
+	if v == 1 {
+		lastNoteLength = 3
+	}
+	s.Lines = append(s.Lines, SongLine{
+		Lyrics: fmt.Sprintf("On the %s day of Christmas, thinkmoney gave to me", dayNames[v]),
+		Notes:  fmt.Sprintf("ggg2CCC2bCDEFDE%d", lastNoteLength),
+	})
+}
+
+func addPartridge(s *Song, includeAnd bool) {
+	line := SongLine{
+		Lyrics: gifts[1] + ".",
+		Notes:  "FG2AFECD2C6",
+	}
+	if includeAnd {
+		line.Lyrics = "and " + line.Lyrics
+		line.Notes = "E" + line.Notes
+	}
+	s.Lines = append(s.Lines, line)
+}
+
+func addRingsToTurtleDoves(s *Song) {
+	s.Lines = append(s.Lines,
+		SongLine{Lyrics: gifts[5], Notes: "G4A2F#2G6"},
+		SongLine{Lyrics: gifts[4], Notes: "GFEDC2"},
+		SongLine{Lyrics: gifts[3], Notes: "F2a2C2"},
+		SongLine{Lyrics: gifts[2], Notes: "DCbag2"},
+	)
+}
+
+func addVerseLine(s *Song, v int) {
+	line := SongLine{
+		Lyrics: gifts[v],
+		Notes:  "G2DEF",
+	}
+	if v > 5 {
+		line.Notes += "D" // extra note for "ing"
 	} else {
-		b.WriteRune('4')
+		line.Notes += "2" // double length of last note
 	}
-}
-
-func addPartridge(b *bytes.Buffer, isFirstVerse bool) {
-	if !isFirstVerse {
-		b.WriteRune('E')
-	}
-	b.WriteString("FG2AFECD2C6")
-}
-
-func addRingsToTurtleDoves(b *bytes.Buffer) {
-	b.WriteString("G4A2F#2G6GFEDC2F2a2C2DCbag2")
-}
-
-func addVerseLine(b *bytes.Buffer, ing bool) {
-	b.WriteString("G2DEF")
-	if ing{
-		b.WriteRune('D')
-	} else {
-		b.WriteRune('2')
-	}
-
+	s.Lines = append(s.Lines, line)
 }
